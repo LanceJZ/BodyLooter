@@ -17,24 +17,29 @@ namespace BodyLooter.Entities
 
         KeyboardState KeyState;
         KeyboardState KeyStateOld;
-
-        Numbers Score;
+        SoundEffect Engine;
+        public SoundEffect CollectSound;
+        public SoundEffect Explode;
+        Numbers PointsNumbers;
         Words ScoreText;
 
-        int Points;
+        int points;
+
+        public int Points { get => points; }
 
         public Player(Game game) : base(game)
         {
-            Score = new Numbers(game);
+            PointsNumbers = new Numbers(game);
             ScoreText = new Words(game);
         }
 
         public override void Initialize()
         {
             Scale = 2;
-            Position.Y = -180;
-            Radius = 13;
+            Radius = 20;
             WidthHeight = new Vector2(26, 12);
+
+            NewGame();
 
             Services.AddBeginable(this);
             base.Initialize();
@@ -42,12 +47,15 @@ namespace BodyLooter.Entities
 
         public override void LoadContent()
         {
-            SetModel(Game.Content.Load<XnaModel>("Drone"));
+            LoadModel("Drone");
+            Engine = LoadSoundEffect("DroneEngine");
+            CollectSound = LoadSoundEffect("Collect");
+            Explode = LoadSoundEffect("PlayerExplosion");
         }
 
         public override void BeginRun()
         {
-            Score.ProcessNumber(Points, new Vector3(0, 400, 100), 4);
+            PointsNumbers.ProcessNumber(points, new Vector3(0, 400, 100), 4);
             ScoreText.ProcessWords("BODIES", new Vector3(0, 410, 100), 2);
 
             base.BeginRun();
@@ -59,8 +67,8 @@ namespace BodyLooter.Entities
             {
                 Services.Camera.Position.X = Position.X;
 
-                Score.Position.X = Position.X;
-                Score.UpdatePosition();
+                PointsNumbers.Position.X = Position.X;
+                PointsNumbers.UpdatePosition();
 
                 ScoreText.Position.X = Position.X - 180;
                 ScoreText.UpdatePosition();
@@ -74,9 +82,18 @@ namespace BodyLooter.Entities
 
         public void AddBody()
         {
-            Points++;
+            points++;
 
-            Score.UpdateNumber(Points);
+            PointsNumbers.UpdateNumber(points);
+        }
+
+        public void NewGame()
+        {
+            Position.Y = -180;
+            Position.X = 0;
+            Active = true;
+            points = 0;
+            PointsNumbers.UpdateNumber(points);
         }
 
         void CheckOnGround()
@@ -111,16 +128,28 @@ namespace BodyLooter.Entities
             if (KeyState.IsKeyDown(Keys.Left))
             {
                 if (Position.X > -1195)
+                {
                     Velocity.X = -50;
+                    Rotation.Y = 0;
+                    Engine.Play(0.1f, 0, 0);
+                }
                 else
+                {
                     Velocity.X = 0;
+                }
             }
             else if (KeyState.IsKeyDown(Keys.Right))
             {
                 if (Position.X < 1199)
+                {
                     Velocity.X = 50;
+                    Rotation.Y = MathHelper.Pi;
+                    Engine.Play(0.1f, 0, 0);
+                }
                 else
+                {
                     Velocity.X = 0;
+                }
             }
             else
             {

@@ -110,13 +110,11 @@ namespace Engine
         public PositionedObject(Game game) : base(game)
 		{
 			game.Components.Add(this);
-
 		}
         #endregion
         #region Public Methods
         public override void Initialize()
         {
-
             base.Initialize();
         }
 
@@ -130,8 +128,6 @@ namespace Engine
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
 		{
-			base.Update(gameTime);
-
 			if (Moveable && Active)
 			{
 				base.Update(gameTime);
@@ -160,8 +156,10 @@ namespace Engine
 
                 if (ActiveDependent)
 					Active = ParentPO.Active;
-			}
-		}
+
+                base.Update(gameTime);
+            }
+        }
         /// <summary>
         /// Add PO class or base PO class from AModel or Sprite as child of this class.
         /// </summary>

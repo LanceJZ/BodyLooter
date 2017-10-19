@@ -32,8 +32,6 @@ namespace BodyLooter.Entities
             for (int i = 0; i < 5; i++)
             {
                 Bodies.Add(new Person(Game, PlayerRef));
-                Bodies.Last().Position = new Vector3(Services.RandomMinMax(-1000, -500) + i
-                    * Services.RandomMinMax(300, 600), 450, 0);
             }
 
             base.Initialize();
@@ -41,9 +39,9 @@ namespace BodyLooter.Entities
 
         public void LoadContent()
         {
-            BodyModel = Game.Content.Load<XnaModel>("Body");
+            BodyModel = PlayerRef.Load("Body");
 
-            foreach(Person body in Bodies)
+            foreach (Person body in Bodies)
             {
                 body.LoadContent();
                 body.SetModel(BodyModel);
@@ -52,12 +50,52 @@ namespace BodyLooter.Entities
 
         public void BeginRun()
         {
+            NewGame();
         }
 
         public override void Update(GameTime gameTime)
         {
+            int count = 0;
+
+            foreach(Mod body in Bodies)
+            {
+                if (body.Active)
+                    count++;
+            }
+
+            if (count < 2)
+            {
+                SpawnBody();
+            }
 
             base.Update(gameTime);
+        }
+
+        public void NewGame()
+        {
+            int spot = 0;
+
+            float start = Services.RandomMinMax(-1000, -800);
+
+            foreach (Person body in Bodies)
+            {
+                body.Position = new Vector3(start + (spot * Services.RandomMinMax(350, 450)), 450, 0);
+                body.NewGame();
+                spot++;
+            }
+        }
+
+        void SpawnBody()
+        {
+            foreach(Person body in Bodies)
+            {
+                if (!body.Active)
+                {
+                    body.Position = new Vector3(Services.RandomMinMax(-1000, 1000), 450, 0);
+                    body.NewGame();
+                    break;
+                }
+            }
         }
     }
 }

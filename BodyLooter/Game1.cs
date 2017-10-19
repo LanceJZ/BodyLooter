@@ -131,6 +131,14 @@ namespace BodyLooter
                 GameOver[1].ShowWords(true);
             }
 
+            if (!Player.Active)
+            {
+                if(Keyboard.GetState().IsKeyDown(Keys.N))
+                {
+                    NewGame();
+                }
+            }
+
             base.Update(gameTime);
         }
 
@@ -145,6 +153,16 @@ namespace BodyLooter
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);
+        }
+
+        void NewGame()
+        {
+            Player.NewGame();
+            Enemies.NewGame();
+            People.NewGame();
+            Background.NewGame();
+            GameOver[0].ShowWords(false);
+            GameOver[1].ShowWords(false);
         }
     }
 }

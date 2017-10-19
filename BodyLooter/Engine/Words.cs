@@ -38,10 +38,10 @@ namespace Engine
             {
                 char letter = (char)(i + 65);
 
-                WordModels[i] = Game.Content.Load<XnaModel>(letter.ToString());
+                WordModels[i] = Game.Content.Load<XnaModel>("Models/" + letter.ToString());
             }
 
-            WordModels[26] = Game.Content.Load<XnaModel>("Underline");
+            WordModels[26] = Game.Content.Load<XnaModel>("Models/Underline");
         }
 
         public void BeginRun()

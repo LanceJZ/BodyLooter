@@ -19,7 +19,7 @@ namespace BodyLooter.Entities
         XnaModel BuildingModel;
         public List<Mod> GroundBlocks = new List<Mod>();
         public List<Mod> BuildingBlocks = new List<Mod>();
-        List<float> GroundHieght = new List<float>();
+        List<float> GroundHeight = new List<float>();
         public float GroundTop = -250;
         public float GroundBottom = -450;
         public float GroundLeft = -600 * 3;
@@ -44,10 +44,10 @@ namespace BodyLooter.Entities
 
                 if (i > 0)
                 {
-                    prevous = GroundHieght[i - 1];
+                    prevous = GroundHeight[i - 1];
                 }
 
-                GroundHieght.Add(MathHelper.Clamp(prevous + Services.RandomMinMax(-4, 4), -25, 25));
+                GroundHeight.Add(MathHelper.Clamp(prevous + Services.RandomMinMax(-5, 5), -25, 25));
             }
 
             Vector3 pos = Vector3.Zero;
@@ -56,10 +56,11 @@ namespace BodyLooter.Entities
             {
                 for (int ii = 0; ii < GroundWidth; ii++)
                 {
-                    pos.X = GroundLeft + 25 + (ii * 50);
-                    pos.Y = GroundBottom - 50 + (i * 50) + GroundHieght[ii];
-                    pos.Z = 25;
                     GroundBlocks.Add(new Mod(Game));
+
+                    pos.X = GroundLeft + 25 + (ii * 50);
+                    pos.Y = GroundBottom - 50 + (i * 50) + GroundHeight[ii];
+                    pos.Z = 25;
                     GroundBlocks.Last().Position = pos;
                     GroundBlocks.Last().Moveable = false;
 
@@ -81,8 +82,8 @@ namespace BodyLooter.Entities
 
         public void LoadContent()
         {
-            GroundModel = Game.Content.Load<XnaModel>("GroundBlock");
-            BuildingModel = Game.Content.Load<XnaModel>("Building");
+            GroundModel = PlayerRef.Load("GroundBlock");
+            BuildingModel = PlayerRef.Load("Building");
         }
 
         public void BeginRun()
@@ -102,6 +103,49 @@ namespace BodyLooter.Entities
         {
 
             base.Update(gameTime);
+        }
+
+        public void NewGame()
+        {
+            for (int i = 0; i < GroundWidth; i++)
+            {
+                GroundHeight[i] = 0;
+            }
+
+            for (int i = 0; i < GroundWidth; i++)
+            {
+                float prevous = 0;
+
+                if (i > 0)
+                {
+                    prevous = GroundHeight[i - 1];
+                }
+
+                GroundHeight[i] = (MathHelper.Clamp(prevous + Services.RandomMinMax(-5, 5), -25, 25));
+            }
+
+            Vector3 pos = Vector3.Zero;
+
+            for (int i = 0; i < 6; i++)
+            {
+                for (int ii = 0; ii < GroundWidth; ii++)
+                {
+                    pos.X = GroundLeft + 25 + (ii * 50);
+                    pos.Y = GroundBottom - 50 + (i * 50) + GroundHeight[ii];
+                    pos.Z = 25;
+
+                    GroundBlocks[ii + (i * GroundWidth)].Position = pos;
+
+                    if (i == 5)
+                    {
+                        PlayerRef.Ground[ii].Position = pos;
+                        PlayerRef.Ground[ii].Radius = 70;
+                        PlayerRef.Ground[ii].WidthHeight = new Vector2(50, 55.5f);
+
+                        BuildingBlocks[ii].Position = pos + new Vector3(0, 50, -50);
+                    }
+                }
+            }
         }
     }
 }

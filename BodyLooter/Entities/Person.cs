@@ -16,7 +16,7 @@ namespace BodyLooter.Entities
         Player PlayerRef;
         Timer BodyCleanTimer;
         Numbers AmountDisplay;
-        int BodyAmount = 10;
+        int BodyAmount;
         bool IsInPlace;
 
         public Person(Game game, Player player) : base(game)
@@ -31,9 +31,6 @@ namespace BodyLooter.Entities
         {
             WidthHeight = new Vector2(40, 10);
 
-            Velocity.Y = -40;
-            Acceleration.Y = -100;
-
             base.Initialize();
         }
 
@@ -44,8 +41,6 @@ namespace BodyLooter.Entities
 
         public override void BeginRun()
         {
-
-
             base.BeginRun();
         }
 
@@ -61,11 +56,11 @@ namespace BodyLooter.Entities
                         Acceleration.Y = 0;
                         IsInPlace = true;
                         AmountDisplay.ProcessNumber(BodyAmount, Position + new Vector3(0, 20, 100), 1);
+                        AmountDisplay.ShowNumbers(true);
                     }
                 }
             }
-
-            if (Active)
+            else if (Active)
                 CheckPlayerTouch();
 
             base.Update(gameTime);
@@ -77,11 +72,12 @@ namespace BodyLooter.Entities
             {
                 if (BoundingBox.Intersects(PlayerRef.BoundingBox))
                 {
+                    PlayerRef.CollectSound.Play(0.15f, 0, 0);
+
                     if (BodyCleanTimer.Expired)
                     {
                         BodyCleanTimer.Reset();
                         BodyAmount--;
-
                         AmountDisplay.UpdateNumber(BodyAmount);
 
                         if (BodyAmount < 1)
@@ -93,6 +89,16 @@ namespace BodyLooter.Entities
                     }
                 }
             }
+        }
+
+        public void NewGame()
+        {
+            Active = true;
+            IsInPlace = false;
+            BodyAmount = 10;
+            Velocity.Y = -40;
+            Acceleration.Y = -100;
+            AmountDisplay.ShowNumbers(false);
         }
     }
 }

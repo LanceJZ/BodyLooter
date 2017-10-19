@@ -14,11 +14,16 @@ namespace BodyLooter.Entities
 
     public class EnemyControl : GameComponent, IBeginable, ILoadContent
     {
+        SoundEffect EngineSound;
+        SoundEffect GunshotSound;
+
         Player PlayerRef;
         XnaModel DroneModel;
         XnaModel ShotModel;
 
         List<AirDrone> Drones = new List<AirDrone>();
+
+        int NextSpawn = 3;
 
         public EnemyControl(Game game, Player player) : base(game)
         {
@@ -36,22 +41,62 @@ namespace BodyLooter.Entities
 
         public void LoadContent()
         {
-            DroneModel = Game.Content.Load<XnaModel>("AirDrone");
-            ShotModel = Game.Content.Load<XnaModel>("cube");
+            DroneModel = PlayerRef.Load("AirDrone");
+            ShotModel = PlayerRef.Load("cube");
+            EngineSound = PlayerRef.LoadSoundEffect("AirdroneEngine");
+            GunshotSound = PlayerRef.LoadSoundEffect("GunShot");
         }
 
         public void BeginRun()
         {
-            Drones.Add(new AirDrone(Game, PlayerRef));
-            Drones.Last().SetModel(DroneModel);
-            Drones.Last().GunShot.SetModel(ShotModel);
-            Drones.Last().Position.X = 1200;
+            SpawnDrone();
         }
 
         public override void Update(GameTime gameTime)
         {
+            if (PlayerRef.Points > NextSpawn)
+            {
+                SpawnDrone();
+                NextSpawn += 2;
+            }
 
             base.Update(gameTime);
+        }
+
+        public void NewGame()
+        {
+            foreach(AirDrone ad in Drones)
+            {
+                ad.Active = false;
+                ad.EngineSound.Stop();
+            }
+
+            SpawnDrone();
+        }
+
+        void SpawnDrone()
+        {
+            bool spawnNew = true;
+
+            foreach (AirDrone ad in Drones)
+            {
+                if (!ad.Active)
+                {
+                    ad.Spawn();
+                    spawnNew = false;
+                    break;
+                }
+            }
+
+            if (spawnNew)
+            {
+                Drones.Add(new AirDrone(Game, PlayerRef));
+                Drones.Last().SetModel(DroneModel);
+                Drones.Last().GunShot.SetModel(ShotModel);
+                Drones.Last().GunShotSound = GunshotSound;
+                Drones.Last().EngineSound = EngineSound.CreateInstance();
+                Drones.Last().Spawn();
+            }
         }
     }
 }

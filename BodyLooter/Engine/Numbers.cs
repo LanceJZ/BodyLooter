@@ -33,9 +33,9 @@ namespace Engine
 
         public void LoadContent()
         {
-            for (int i = 0; i < 10; i++)
+            for (int number = 0; number < 10; number++)
             {
-                NumberModels[i] = Game.Content.Load<XnaModel>(i.ToString());
+                NumberModels[number] = Game.Content.Load<XnaModel>("Models/" + number.ToString());
             }
         }
 

@@ -19,6 +19,9 @@ namespace BodyLooter.Entities
 
     public class AirDrone : Mod
     {
+        public SoundEffectInstance EngineSound;
+        public SoundEffect GunShotSound;
+
         Player PlayerRef;
         public Shot GunShot;
 
@@ -92,18 +95,34 @@ namespace BodyLooter.Entities
             base.Update(gameTime);
         }
 
+        public void Spawn()
+        {
+            Position.X = 1200;
+            EngineSound.Volume = 0.05f;
+            EngineSound.IsLooped = true;
+            EngineSound.Play();
+            Active = true;
+        }
+
         void CheckPlayerHit()
         {
-            if (GunShot.CirclesIntersect(PlayerRef))
+            if (GunShot.Active)
             {
-                PlayerRef.Hit = true;
+                if (GunShot.CirclesIntersect(PlayerRef))
+                {
+                    PlayerRef.Hit = true;
+                    PlayerRef.Explode.Play(0.25f, 0.5f, 0);
+                }
             }
         }
 
         void FireShot()
         {
             if (!GunShot.Active)
-                GunShot.Spawn(Position, new Vector3(0, -150, 0), 1.35f);
+            {
+                GunShot.Spawn(Position, new Vector3(0, -210, 0), 1.35f);
+                GunShotSound.Play(0.15f, 0, 0);
+            }
         }
     }
 }
